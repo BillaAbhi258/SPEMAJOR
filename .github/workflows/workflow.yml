@@ -13,7 +13,7 @@ jobs:
            mysql: 
             image: mysql:latest
             env:
-             MYSQL_ROOT_PASSWORD: Billa@258
+             #MYSQL_ROOT_PASSWORD: Billa@258
              MYSQL_DATABASE: Question
              MYSQL_USER: root
              MYSQL_PASSWORD: Billa@258
