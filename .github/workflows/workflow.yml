@@ -4,7 +4,7 @@ name: Microservices CI/CD Pipeline
 env:
    MYSQL_DATABASE: Question
    MYSQL_ROOT_PASSWORD: Billa@258
-   MYSQL_HOST: localhost
+   MYSQL_HOST: 127.0.0.1
 on:
   push:
     branches: ["master"]
@@ -37,7 +37,11 @@ jobs:
 
 
       - name: Building and Pushing Question Service
-        run : mvn package dockerfile:push --file question-service/pom.xml
+        run : |
+             mvn package dockerfile:push --file question-service/pom.xml \
+             -Dspring.datasource.url=jdbc:mysql://${{ env.MYSQL_HOST }}:3306/${{ env.MYSQL_DATABASE }} \
+             -Dspring.datasource.username=root \
+             -Dspring.datasource.password=${{ env.MYSQL_ROOT_PASSWORD }}
         env :
           MAVEN_USERNAME: ${{ secrets.DOCKER_USERNAME}}
           MAVEN_PASSWORD: ${{ secrets.DOCKER_PASSWORD}}
