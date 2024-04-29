@@ -32,14 +32,23 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: "17"
-          server-id: docker.io
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
-          distribution: "temurin"
-          cache: maven
 
       - name: Wait for MySQL to be ready
-        run: dockerize -wait tcp://localhost:3306 -timeout 1m
+        run: |
+          for i in {1..3}; do
+            mysql -h localhost -u root -p"${{ env.MYSQL_ROOT_PASSWORD }}" -e "SELECT 1;" &> /dev/null
+            if [ $? -eq 0 ]; then
+              echo "MySQL is ready."
+              break
+            else
+              echo "MySQL is not ready yet. Retrying..."
+              sleep 10
+            fi
+          done
+          if [ $i -eq 30 ]; then
+            echo "Timed out waiting for MySQL to be ready."
+            exit 1
+          fi
 
       - name: Secure MySQL root password
         run: mysql -h localhost -u root -p"${{ env.MYSQL_ROOT_PASSWORD }}" --execute="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${{ env.MYSQL_ROOT_PASSWORD }}';"
