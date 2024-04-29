@@ -4,7 +4,7 @@ name: Microservices CI/CD Pipeline
 env:
    MYSQL_DATABASE: Question
    MYSQL_ROOT_PASSWORD: Billa@258
-   MYSQL_HOST: root
+   MYSQL_HOST: localhost
 on:
   push:
     branches: ["master"]
