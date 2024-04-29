@@ -1,10 +1,10 @@
+# documentation.
+
 name: Microservices CI/CD Pipeline
-
 env:
-  MYSQL_DATABASE: Question
-  MYSQL_ROOT_PASSWORD: Billa@258
-  MYSQL_HOST: localhost
-
+   MYSQL_DATABASE: Question
+   MYSQL_ROOT_PASSWORD: Hemanth@2000
+   MYSQL_HOST: localhost
 on:
   push:
     branches: ["master"]
@@ -13,21 +13,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     services:
-      mysql:
-        image: mysql:latest
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
-          MYSQL_HOST: ${{ env.MYSQL_HOST }}
+      mysql-master:
+        image: mysql:8.0
         ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
+          - 3306/tcp
+        env:
+          MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
+          MYSQL_USER: root
+          MYSQL_PASSWORD : ${{env.MYSQL_ROOT_PASSWORD}}
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD}}
+      ports:
+         -3306:3306
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -38,32 +37,38 @@ jobs:
           distribution: "temurin"
           cache: maven
 
-      - name: Wait for MySQL to be ready
-        run: |
-          for i in {1..30}; do
-            mysql -h localhost -u root -p"${{ env.MYSQL_ROOT_PASSWORD }}" -e "SELECT 1;" &> /dev/null
-            if [ $? -eq 0 ]; then
-              echo "MySQL is ready."
-              break
-            else
-              echo "MySQL is not ready yet. Retrying..."
-              sleep 10
-            fi
-          done
-          if [ $i -eq 30 ]; then
-            echo "Timed out waiting for MySQL to be ready."
-            exit 1
-          fi
-
-      - name: Secure MySQL root password
-        run: mysql -h localhost -u root -p"${{ env.MYSQL_ROOT_PASSWORD }}" --execute="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${{ env.MYSQL_ROOT_PASSWORD }}';"
-
       - name: Building and Pushing Question Service
-        run: |
-          mvn package dockerfile:push --file question-service/pom.xml \
-          -Dspring.datasource.url=jdbc:mysql://${{ env.MYSQL_HOST }}:3306/${{ env.MYSQL_DATABASE }} \
-          -Dspring.datasource.username=root \
-          -Dspring.datasource.password=${{ env.MYSQL_ROOT_PASSWORD }}
+        run: mvn  package dockerfile:push --file question-service/pom.xml
+        env:
+          MAVEN_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Building and Pushing Quiz Service
+        run: mvn  package dockerfile:push --file quiz-service/pom.xml
+        env:
+          MAVEN_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Building and Pushing Contribute Service
+        run: mvn  package dockerfile:push --file contribute-service/pom.xml
+        env:
+          MAVEN_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Building and Pushing Config server
+        run: mvn  package dockerfile:push --file cloud-config-server/pom.xml
+        env:
+          MAVEN_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Building and Pushing Server registry
+        run: mvn  package dockerfile:push --file service-registry/pom.xml
+        env:
+          MAVEN_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Building and Pushing Api gateway
+        run: mvn  package dockerfile:push --file api-gateway/pom.xml
         env:
           MAVEN_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
