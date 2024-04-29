@@ -13,10 +13,10 @@ jobs:
            mysql: 
             image: mysql:latest
             env:
-             #MYSQL_ROOT_PASSWORD: Billa@258
+             MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD}}
              MYSQL_DATABASE: Question
              MYSQL_USER: root
-             MYSQL_PASSWORD: Billa@258
+             #MYSQL_PASSWORD: Billa@258
             ports:
              - 3306:3306
     steps:
