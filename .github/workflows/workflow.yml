@@ -20,7 +20,7 @@ jobs:
           - 3306/tcp
         env:
           MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
-          MYSQL_USER: root
+          #MYSQL_USER: root
           MYSQL_PASSWORD : ${{env.MYSQL_ROOT_PASSWORD}}
           MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD}}
       ports:
