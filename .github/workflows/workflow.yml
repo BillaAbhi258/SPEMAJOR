@@ -9,6 +9,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+           mysql: 
+            image: mysql:latest
+            env:
+             MYSQL_ROOT_PASSWORD: Billa@258
+             MYSQL_DATABASE: Question
+             MYSQL_USER: root
+             MYSQL_PASSWORD: Billa@258
+            ports:
+             - 3306:3306
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17
@@ -21,36 +31,12 @@ jobs:
           distribution: "temurin"
           cache: maven
 
-  #     - name: Building and Pushing Question Service
-  # run: mvn package dockerfile:push --file question-service/pom.xml
-  # env:
-  #   MAVEN_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  #   MAVEN_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-  # services:
-  #   mysql:
-  #     image: mysql:latest
-  #     env:
-  #       MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-  #       MYSQL_DATABASE: your_database_name
-  #       MYSQL_USER: your_database_user
-  #       MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-  #     ports:
-  #       - 3306:3306
+
       - name: Building and Pushing Question Service
         run : mvn package dockerfile:push --file question-service/pom.xml
         env :
           MAVEN_USERNAME: ${{ secrets.DOCKER_USERNAME}}
           MAVEN_PASSWORD: ${{ secrets.DOCKER_PASSWORD}}
-        services:
-           mysql: 
-            image: mysql:latest
-            env:
-             MYSQL_ROOT_PASSWORD: Billa@258
-             MYSQL_DATABASE: Question
-             MYSQL_USER: root
-             MYSQL_PASSWORD: Billa@258
-            ports:
-             - 3306:3306
 
       - name: Building and Pushing Quiz Service
         run: mvn  package dockerfile:push --file quiz-service/pom.xml
