@@ -37,7 +37,7 @@ jobs:
           distribution: "temurin"
           cache: maven
       - name : MySQL connection Test
-        run : curl http://localhost:3306 -u root:Billa@258
+        run : curl http://127.0.0.1:3306 -u root:Billa@258
 
       - name: Building and Pushing Question Service
         run: mvn  package dockerfile:push --file question-service/pom.xml
