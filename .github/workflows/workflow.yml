@@ -13,18 +13,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    services:
-      mysql-master:
-        image: mysql:8.0
-        ports:
-          - 3306/tcp
-        env:
-          MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
-          #MYSQL_USER: root
-          MYSQL_PASSWORD : ${{env.MYSQL_ROOT_PASSWORD}}
-          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD}}
-      ports:
-         -3306:3306
+    # services:
+    #   mysql-master:
+    #     image: mysql:8.0
+    #     ports:
+    #       - 3306/tcp
+    #     env:
+    #       MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
+    #       #MYSQL_USER: root
+    #       MYSQL_PASSWORD : ${{env.MYSQL_ROOT_PASSWORD}}
+    #       MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD}}
+    #   ports:
+    #      -3306:3306
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17
@@ -36,6 +36,8 @@ jobs:
           server-password: MAVEN_PASSWORD
           distribution: "temurin"
           cache: maven
+      - name : MySQL connection Test
+        run : curl http://localhost:3306 -u root:Billa@258
 
       - name: Building and Pushing Question Service
         run: mvn  package dockerfile:push --file question-service/pom.xml
